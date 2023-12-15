@@ -15,7 +15,7 @@ SRC_FILES = $(wildcard $(SRC_DIR)/*.c)
 OBJ_FILES = $(patsubst $(SRC_DIR)/%.c, $(OBJ_DIR)/%.o, $(SRC_FILES))
 
 # Executable
-TARGET = $(BIN_DIR)/pinetree
+TARGET = $(BIN_DIR)/christmastree
 
 # Phony targets
 .PHONY: all clean
