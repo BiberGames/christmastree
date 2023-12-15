@@ -9,7 +9,7 @@
 #include <sys/ioctl.h>
 #include <unistd.h>
 
-#include "pinetree.h"
+#include "christmastree.h"
 
 void moveCursor(int row, int col) {
     printf("\033[%d;%dH", row, col);
