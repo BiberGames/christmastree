@@ -32,6 +32,29 @@ int getTerminalWidth() {
     return ws.ws_col;
 }
 
+int getTerminalHeight() {
+    struct winsize ws;
+
+    if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &ws) == -1) {
+        perror("ioctl");
+        return -1;
+    }
+
+    return ws.ws_row;
+}
+
+void star() {
+    printf("\033[0;33m");
+    moveCursor(lin-3, col-3);
+    printf("  .  \n");
+    moveCursor(lin-2, col-3);
+    printf(".....\n");
+    moveCursor(lin-1, col-3);
+    printf(" . . \n");
+    moveCursor(lin, col-3);
+    printf("\033[0m");
+}
+
 void tree() {
     for(int i=1; i<=20; i+=2) {
         moveCursor(lin, col-1);
@@ -57,29 +80,39 @@ void effects() {
     int start = c - li + 2;
     int co = rand() % (li-2) * 2 + 1 + start;
 
-    k = rand() % 4;
+    k = rand() % 2;
 
     if(k == 0) {
         color = rand() % 6;
         printf("\e[0;3%dm", colors[color]);
-        moveCursor(li, co);
+        moveCursor(li + (lin - 15), co);
         putchar('o');
     }
     else {
-        moveCursor(li, co);
+        moveCursor(li + (lin - 15), co);
         printf("\033[32;1m");
         putchar('*');
         printf("\033[0m");
     }
 
-    usleep(10000);
+    if(s < 10) {
+        moveCursor(getTerminalHeight() / 2 - 2, getTerminalWidth() / 2 - 3);
+        printf("\033[0;33m");
+        printf(". . .\n");
+        s++;
+    }
+    else {
+        moveCursor(getTerminalHeight() / 2 - 2, getTerminalWidth() / 2 - 3);
+        printf("\033[0;33m");
+        printf(".....\n");
+        s = 0;
+    }
 }
 
 void handleCtrlC(int signum) {
     printf("\033[?25h");
     clearScreen();
     printf("Thanks and have a nice christmas!\n");
-    // Cleanup or perform any necessary actions before exiting
     exit(signum);
 }
 
@@ -94,17 +127,19 @@ int onCtrlC() {
 int main(void) {
     printf("\033[?25l");
 
-    lin = 3;
+    lin = getTerminalHeight() / 2;
     col = getTerminalWidth() / 2;
     c = col - 1;
     est = c - 2;
     color = 0;
 
     clearScreen();
+    star();
     tree();
     trunk();
     while(onCtrlC()) {
         effects();
+        usleep(100000);
     }
 	return 0;
 }
