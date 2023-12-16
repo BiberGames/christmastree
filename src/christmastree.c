@@ -6,6 +6,8 @@
 ////////////////////////////////////////////////////
 
 #include <stdio.h>
+#include <signal.h>
+#include <stdlib.h>
 #include <sys/ioctl.h>
 #include <unistd.h>
 
@@ -51,28 +53,42 @@ void trunk() {
 }
 
 void effects() {
-    while(1) {
-        int li = (rand() % 9) + 3;
-        int start = c - li + 2;
-        int co = rand() % (li-2) * 2 + 1 + start;
+    int li = (rand() % 9) + 3;
+    int start = c - li + 2;
+    int co = rand() % (li-2) * 2 + 1 + start;
 
-        k = rand() % 4;
+    k = rand() % 4;
 
-        if(k == 0) {
-            color = rand() % 6;
-            printf("\e[0;3%dm", colors[color]);
-            moveCursor(li, co);
-            putchar('o');
-        }
-        else {
-            moveCursor(li, co);
-            printf("\033[32;1m");
-            putchar('*');
-            printf("\033[0m");
-        }
-
-        usleep(10000);
+    if(k == 0) {
+        color = rand() % 6;
+        printf("\e[0;3%dm", colors[color]);
+        moveCursor(li, co);
+        putchar('o');
     }
+    else {
+        moveCursor(li, co);
+        printf("\033[32;1m");
+        putchar('*');
+        printf("\033[0m");
+    }
+
+    usleep(10000);
+}
+
+void handleCtrlC(int signum) {
+    printf("\033[?25h");
+    clearScreen();
+    printf("Thanks and have a nice christmas!\n");
+    // Cleanup or perform any necessary actions before exiting
+    exit(signum);
+}
+
+int onCtrlC() {
+    if (signal(SIGINT, handleCtrlC) == SIG_ERR) {
+        perror("Error registering signal handler");
+        return 0;
+    }
+    return 1;
 }
 
 int main(void) {
@@ -87,6 +103,8 @@ int main(void) {
     clearScreen();
     tree();
     trunk();
-    effects();
+    while(onCtrlC()) {
+        effects();
+    }
 	return 0;
 }

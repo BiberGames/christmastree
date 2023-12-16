@@ -21,4 +21,6 @@ int getTerminalWidth();
 void tree();
 void trunk();
 void effects();
+void handleCtrlC(int signum);
+int onCtrlC();
 int main(void);
